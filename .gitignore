@@ -1,0 +1,3 @@
+# manual changes
+server/node_modules
+.env
