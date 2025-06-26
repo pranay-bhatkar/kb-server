@@ -38,7 +38,7 @@ const orderSchema = new mongoose.Schema(
     delivery_address: {
       type: mongoose.Schema.ObjectId,
       ref: "address",
-      required: true, 
+      required: true,
     },
     subTotalAmt: {
       type: Number,
@@ -51,6 +51,26 @@ const orderSchema = new mongoose.Schema(
     invoice_receipt: {
       type: String,
       default: "",
+    },
+
+    // NEW FIELDS
+    deliveryType: {
+      type: String,
+      enum: ["instant", "schedule"],
+      default: "instant",
+    },
+    subscriptionDetails: {
+      startDate: Date,
+      frequency: {
+        type: String,
+        enum: ["daily", "weekly", "monthly"],
+      },
+      nextDeliveryDate: Date,
+    },
+    deliverySlot: {
+      type: String,
+      enum: ["morning", "afternoon", "evening", null],
+      default: null,
     },
   },
   {
