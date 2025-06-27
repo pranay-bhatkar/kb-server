@@ -27,7 +27,7 @@ const orderSchema = new mongoose.Schema(
     },
     payment_status: {
       type: String,
-      enum: ["Pending", "Paid", "Cash on Delivery"], // Ensure correct casing
+      enum: ["Pending", "Paid via QR", "Cash on Delivery"], 
       default: "Pending",
     },
     status: {

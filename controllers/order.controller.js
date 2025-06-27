@@ -235,7 +235,6 @@ import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
 import { io } from "../server.js";
 
-
 // Utility: calculate discounted price
 export const pricewithDiscount = (price, dis = 1) => {
   const discountAmount = Math.ceil((Number(price) * Number(dis)) / 100);
@@ -254,6 +253,8 @@ export async function CashOnDeliveryOrderController(request, response) {
       deliveryType,
       deliverySlot,
       subscriptionDetails,
+      transactionId,
+      payment_status = "Cash on Delivery", // default to COD if not provided
     } = request.body;
 
     const items = list_items.map((el) => ({
@@ -290,8 +291,8 @@ export async function CashOnDeliveryOrderController(request, response) {
       delivery_address: addressId,
       subTotalAmt,
       totalAmt,
-      paymentId: "",
-      payment_status: "Cash on Delivery",
+      paymentId: transactionId || "",
+      payment_status,
       deliveryType: deliveryType || "instant",
       deliverySlot: deliverySlot || null, // ✅ NEW
       subscriptionDetails: subscriptionDetails || null,
@@ -301,6 +302,7 @@ export async function CashOnDeliveryOrderController(request, response) {
       userId,
       deliveryType,
       deliverySlot,
+      payment_status,
     });
 
     await CartProductModel.deleteMany({ userId });
