@@ -69,7 +69,7 @@ const orderSchema = new mongoose.Schema(
     },
     deliverySlot: {
       type: String,
-      enum: ["morning", "afternoon", "evening", null],
+      enum: ["morning", "evening", "night", null],
       default: null,
     },
   },
