@@ -233,7 +233,6 @@ import CartProductModel from "../models/cartproduct.model.js";
 import OrderModel from "../models/order.model.js";
 import UserModel from "../models/user.model.js";
 import mongoose from "mongoose";
-import { io } from "../server.js";
 
 // Utility: calculate discounted price
 export const pricewithDiscount = (price, dis = 1) => {

@@ -1,7 +1,4 @@
-
 import express from "express";
-import http from "http";
-import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -9,7 +6,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import connectDB from "./config/connectDB.js";
 
-// Route imports
+// Routes
 import userRouter from "./route/user.route.js";
 import categoryRouter from "./route/category.route.js";
 import uploadRouter from "./route/upload.router.js";
@@ -23,36 +20,36 @@ import adminRoutes from "./route/admin.route.js";
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app);
 
-// ✅ Setup Socket.IO
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    methods: ["GET", "POST"]
-  }
-});
+// ✅ Environment-aware allowed origins
+const isProduction = process.env.NODE_ENV === "production";
+const allowedOrigins = isProduction
+  ? [process.env.PROD_ORIGIN]
+  : [process.env.DEV_ORIGIN];
 
-export { io }; // export to use in controllers
-
-// 🧠 On new client connection
-io.on("connection", (socket) => {
-  console.log("🟢 New socket connected:", socket.id);
-});
+console.log(`🌐 Running in ${process.env.NODE_ENV} mode`);
+console.log("✅ Allowed CORS Origins:", allowedOrigins);
 
 // ✅ Middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    credentials: true
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS error: Origin not allowed"));
+      }
+    },
+    credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(
   helmet({
-    crossOriginResourcePolicy: false
+    crossOriginResourcePolicy: false,
   })
 );
 
@@ -67,15 +64,19 @@ app.use("/api/address", addressRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/admin", adminRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-  res.json({ message: "Server is running ✅" });
+// Health check
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Server is healthy ✅" });
 });
 
-// ✅ Start Server
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to the KissanBazzar API" });
+});
+
+// ✅ Start server
 const PORT = process.env.PORT || 8080;
 connectDB().then(() => {
-  server.listen(PORT, () => {
+  app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
   });
 });
